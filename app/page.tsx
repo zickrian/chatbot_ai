@@ -45,72 +45,235 @@ export default function Home() {
     setMessages([]);
   };
 
-  const handleDownloadTranscript = () => {
+  const handleDownloadTranscript = async () => {
     const doc = new jsPDF();
 
-    // Header
-    doc.setFillColor(15, 76, 146); // #0f4c92
-    doc.rect(0, 0, 210, 40, 'F');
+    // Helper function to replace emojis with readable symbols
+    const cleanTextForPDF = (text: string) => {
+      return text
+        // Common emojis with clean text replacements
+        .replace(/🚧/g, '(!) ')
+        .replace(/✅/g, '(v) ')
+        .replace(/🙏/g, '')
+        .replace(/•/g, '  - ')
+        .replace(/📝/g, '* ')
+        .replace(/📋/g, '* ')
+        .replace(/📌/g, '> ')
+        .replace(/⚠️/g, '(!!) ')
+        .replace(/❌/g, '(X) ')
+        .replace(/✔️/g, '(v) ')
+        .replace(/🔍/g, '')
+        .replace(/📞/g, '[Tel] ')
+        .replace(/📧/g, '[Email] ')
+        .replace(/📍/g, '[Lokasi] ')
+        .replace(/🏢/g, '[Kantor] ')
+        .replace(/👤/g, '')
+        .replace(/👮/g, '[Petugas] ')
+        .replace(/🚓/g, '[Patroli] ')
+        .replace(/🚨/g, '(!!) ')
+        .replace(/📱/g, '[HP] ')
+        .replace(/💬/g, '')
+        .replace(/⏰/g, '[Waktu] ')
+        .replace(/📅/g, '[Tanggal] ')
+        .replace(/🔔/g, '(!) ')
+        .replace(/ℹ️/g, '[Info] ')
+        .replace(/❓/g, '(?) ')
+        .replace(/❗/g, '(!) ')
+        .replace(/⭐/g, '* ')
+        .replace(/🎯/g, '> ')
+        .replace(/📊/g, '[Data] ')
+        .replace(/📈/g, '[+] ')
+        .replace(/📉/g, '[-] ')
+        // Replace any remaining emojis with minimal markers or remove them
+        .replace(/[\u{1F600}-\u{1F64F}]/gu, '') // Emoticons
+        .replace(/[\u{1F300}-\u{1F5FF}]/gu, '') // Misc symbols
+        .replace(/[\u{1F680}-\u{1F6FF}]/gu, '') // Transport
+        .replace(/[\u{1F700}-\u{1F77F}]/gu, '') // Alchemical
+        .replace(/[\u{1F780}-\u{1F7FF}]/gu, '') // Geometric
+        .replace(/[\u{1F800}-\u{1F8FF}]/gu, '') // Supplemental Arrows
+        .replace(/[\u{1F900}-\u{1F9FF}]/gu, '') // Supplemental Symbols
+        .replace(/[\u{1FA00}-\u{1FA6F}]/gu, '') // Chess Symbols
+        .replace(/[\u{1FA70}-\u{1FAFF}]/gu, '') // Symbols and Pictographs
+        .replace(/[\u{2600}-\u{26FF}]/gu, '')  // Misc symbols
+        .replace(/[\u{2700}-\u{27BF}]/gu, ''); // Dingbats
+    };
 
-    doc.setTextColor(255, 255, 255);
-    doc.setFontSize(22);
-    doc.setFont("helvetica", "bold");
-    doc.text("POLSEK REMBANG", 20, 20);
+    // Load and add logo image to header
+    const img = new Image();
+    img.src = '/Untitled-design.png';
+    
+    await new Promise<void>((resolve) => {
+      img.onload = () => {
+        // Header
+        doc.setFillColor(15, 76, 146); // #0f4c92
+        doc.rect(0, 0, 210, 40, 'F');
 
-    doc.setFontSize(12);
-    doc.setFont("helvetica", "normal");
-    doc.text("Transkrip Chat Layanan Masyarakat", 20, 30);
+        // Add logo in top-left corner
+        doc.addImage(img, 'PNG', 10, 8, 24, 24);
 
-    // Content
-    doc.setTextColor(0, 0, 0);
-    doc.setFontSize(10);
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(22);
+        doc.setFont("helvetica", "bold");
+        doc.text("POLSEK REMBANG", 40, 20);
 
-    let y = 50;
-    const pageHeight = doc.internal.pageSize.height;
+        doc.setFontSize(12);
+        doc.setFont("helvetica", "normal");
+        doc.text("Transkrip Chat Layanan Masyarakat", 40, 30);
 
-    messages.forEach((msg) => {
-      const role = msg.role === 'user' ? "PELAPOR" : "POLSEK REMBANG";
-      const time = msg.timestamp.toLocaleTimeString();
-      const header = `${role} [${time}]`;
+        // Content
+        doc.setTextColor(0, 0, 0);
+        doc.setFontSize(10);
 
-      // Role Header
-      doc.setFont("helvetica", "bold");
-      if (msg.role === 'assistant') {
-        doc.setTextColor(15, 76, 146); // #0f4c92
-      } else {
-        doc.setTextColor(100, 100, 100); // Gray
-      }
+        let y = 50;
+        const pageHeight = doc.internal.pageSize.height;
 
-      if (y > pageHeight - 20) {
-        doc.addPage();
-        y = 20;
-      }
+        messages.forEach((msg) => {
+          const role = msg.role === 'user' ? "PELAPOR" : "POLSEK REMBANG";
+          const time = msg.timestamp.toLocaleTimeString();
+          const header = `${role} [${time}]`;
 
-      doc.text(header, 20, y);
-      y += 5;
+          // Role Header
+          doc.setFont("helvetica", "bold");
+          if (msg.role === 'assistant') {
+            doc.setTextColor(15, 76, 146); // #0f4c92
+          } else {
+            doc.setTextColor(100, 100, 100); // Gray
+          }
 
-      // Message Body
-      doc.setFont("helvetica", "normal");
-      doc.setTextColor(0, 0, 0);
+          if (y > pageHeight - 20) {
+            doc.addPage();
+            y = 20;
+          }
 
-      const splitText = doc.splitTextToSize(msg.content, 170);
+          doc.text(header, 20, y);
+          y += 5;
 
-      if (y + splitText.length * 5 > pageHeight - 20) {
-        doc.addPage();
-        y = 20;
-      }
+          // Message Body
+          doc.setFont("helvetica", "normal");
+          doc.setTextColor(0, 0, 0);
 
-      doc.text(splitText, 20, y);
-      y += splitText.length * 5 + 10; // Spacing between messages
+          // Clean content for PDF (replace emojis with text)
+          const cleanedContent = cleanTextForPDF(msg.content);
+          
+          // Process content - Split by lines first to preserve formatting
+          const lines = cleanedContent.split('\n');
+          lines.forEach((line) => {
+            if (y > pageHeight - 20) {
+              doc.addPage();
+              y = 20;
+            }
+            
+            if (line.trim()) {
+              const splitText = doc.splitTextToSize(line, 170);
+              splitText.forEach((textLine: string) => {
+                if (y > pageHeight - 20) {
+                  doc.addPage();
+                  y = 20;
+                }
+                doc.text(textLine, 20, y);
+                y += 5;
+              });
+            } else {
+              // Empty line, just add spacing
+              y += 5;
+            }
+          });
+          
+          y += 5; // Extra spacing between messages
+        });
+
+        // Footer
+        const date = new Date().toLocaleDateString();
+        doc.setFontSize(8);
+        doc.setTextColor(150, 150, 150);
+        doc.text(`Dicetak pada: ${date}`, 20, pageHeight - 10);
+
+        doc.save(`transkrip-polsek-rembang-${Date.now()}.pdf`);
+        resolve();
+      };
+      
+      img.onerror = () => {
+        console.error('Failed to load logo image');
+        // Continue without logo - fallback to original design
+        // Header
+        doc.setFillColor(15, 76, 146);
+        doc.rect(0, 0, 210, 40, 'F');
+
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(22);
+        doc.setFont("helvetica", "bold");
+        doc.text("POLSEK REMBANG", 20, 20);
+
+        doc.setFontSize(12);
+        doc.setFont("helvetica", "normal");
+        doc.text("Transkrip Chat Layanan Masyarakat", 20, 30);
+
+        // Content
+        doc.setTextColor(0, 0, 0);
+        doc.setFontSize(10);
+
+        let y = 50;
+        const pageHeight = doc.internal.pageSize.height;
+
+        messages.forEach((msg) => {
+          const role = msg.role === 'user' ? "PELAPOR" : "POLSEK REMBANG";
+          const time = msg.timestamp.toLocaleTimeString();
+          const header = `${role} [${time}]`;
+
+          doc.setFont("helvetica", "bold");
+          if (msg.role === 'assistant') {
+            doc.setTextColor(15, 76, 146);
+          } else {
+            doc.setTextColor(100, 100, 100);
+          }
+
+          if (y > pageHeight - 20) {
+            doc.addPage();
+            y = 20;
+          }
+
+          doc.text(header, 20, y);
+          y += 5;
+
+          doc.setFont("helvetica", "normal");
+          doc.setTextColor(0, 0, 0);
+
+          const cleanedContent = cleanTextForPDF(msg.content);
+          const lines = cleanedContent.split('\n');
+          
+          lines.forEach((line) => {
+            if (y > pageHeight - 20) {
+              doc.addPage();
+              y = 20;
+            }
+            
+            if (line.trim()) {
+              const splitText = doc.splitTextToSize(line, 170);
+              splitText.forEach((textLine: string) => {
+                if (y > pageHeight - 20) {
+                  doc.addPage();
+                  y = 20;
+                }
+                doc.text(textLine, 20, y);
+                y += 5;
+              });
+            } else {
+              y += 5;
+            }
+          });
+          
+          y += 5;
+        });
+
+        const date = new Date().toLocaleDateString();
+        doc.setFontSize(8);
+        doc.setTextColor(150, 150, 150);
+        doc.text(`Dicetak pada: ${date}`, 20, pageHeight - 10);
+
+        doc.save(`transkrip-polsek-rembang-${Date.now()}.pdf`);
+        resolve();
+      };
     });
-
-    // Footer
-    const date = new Date().toLocaleDateString();
-    doc.setFontSize(8);
-    doc.setTextColor(150, 150, 150);
-    doc.text(`Dicetak pada: ${date}`, 20, pageHeight - 10);
-
-    doc.save(`transkrip-polsek-rembang-${Date.now()}.pdf`);
   };
 
   return (
