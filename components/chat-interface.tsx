@@ -198,7 +198,7 @@ export function ChatInterface({ messages, input, setInput, onSendMessage, isLoad
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="Ketik pesan..."
-              className="flex-1 pl-3 pr-3 py-2.5 sm:py-6 rounded-lg sm:rounded-2xl shadow-sm border-slate-300 focus-visible:ring-2 text-sm sm:text-base bg-white"
+              className="flex-1 pl-3 pr-3 py-2.5 sm:py-6 rounded-lg sm:rounded-2xl shadow-sm border-slate-300 focus-visible:ring-2 text-[16px] sm:text-base bg-white"
               style={{ '--tw-ring-color': 'rgba(255, 107, 74, 0.3)', borderColor: '#e5e7eb' } as React.CSSProperties}
             />
             <div className="flex gap-1.5 sm:gap-2 flex-shrink-0">
