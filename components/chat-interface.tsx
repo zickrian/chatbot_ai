@@ -95,14 +95,14 @@ export function ChatInterface({ messages, input, setInput, onSendMessage, isLoad
   return (
     <div className="flex flex-col h-full w-full overflow-hidden" style={{ backgroundColor: '#f5f6f8' }}>
       {/* Messages Area */}
-      <ScrollArea className="flex-1 overflow-y-auto pt-4">
-        <div className="max-w-4xl mx-auto space-y-4 sm:space-y-6 p-3 sm:p-6 py-4 sm:py-8">
+      <ScrollArea className="flex-1 overflow-y-auto">
+        <div className="max-w-4xl mx-auto space-y-3 sm:space-y-6 p-2 sm:p-6 py-3 sm:py-8">
           {messages.length === 0 && (
-            <div className="text-center text-slate-500 py-12 sm:py-20 px-4">
+            <div className="text-center text-slate-500 py-8 sm:py-20 px-4">
               <Button
                 variant="ghost"
                 size="icon"
-                className="lg:hidden absolute top-4 left-4 h-10 w-10"
+                className="lg:hidden absolute top-2 left-2 h-9 w-9 z-10"
                 onClick={onToggleSidebar}
               >
                 <Menu className="w-5 h-5" />
@@ -110,10 +110,10 @@ export function ChatInterface({ messages, input, setInput, onSendMessage, isLoad
               <img 
                 src="/Untitled-design.png" 
                 alt="Polsek Rembang Logo" 
-                className="w-20 h-20 sm:w-24 sm:h-24 rounded-full object-cover mx-auto mb-4 sm:mb-6 shadow-lg"
+                className="w-16 h-16 sm:w-24 sm:h-24 rounded-full object-cover mx-auto mb-3 sm:mb-6 shadow-lg"
               />
-              <h3 className="text-xl sm:text-2xl font-bold text-slate-800 mb-2 sm:mb-3">Selamat Datang</h3>
-              <p className="max-w-md mx-auto text-sm sm:text-base text-slate-600 leading-relaxed">
+              <h3 className="text-lg sm:text-2xl font-bold text-slate-800 mb-2 sm:mb-3">Selamat Datang</h3>
+              <p className="max-w-md mx-auto text-xs sm:text-base text-slate-600 leading-relaxed">
                 Saya adalah asisten virtual Polsek Rembang. Silakan sampaikan pertanyaan Anda terkait layanan kepolisian.
               </p>
             </div>
@@ -183,23 +183,23 @@ export function ChatInterface({ messages, input, setInput, onSendMessage, isLoad
       </ScrollArea>
 
       {/* Input Area */}
-      <div className="p-3 sm:p-4 md:p-5 bg-white flex-shrink-0">
+      <div className="p-2 sm:p-4 md:p-5 bg-white flex-shrink-0">
         <div className="max-w-4xl mx-auto">
-          <div className="relative flex items-center gap-2">
+          <div className="relative flex items-center gap-1.5 sm:gap-2">
             <Input
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Ketik pesan Anda di sini..."
-              className="flex-1 pl-4 pr-4 py-5 sm:py-6 rounded-xl sm:rounded-2xl shadow-sm border-slate-300 focus-visible:ring-2 text-sm sm:text-base bg-white"
+              placeholder="Ketik pesan..."
+              className="flex-1 pl-3 pr-3 py-2.5 sm:py-6 rounded-lg sm:rounded-2xl shadow-sm border-slate-300 focus-visible:ring-2 text-sm sm:text-base bg-white"
               style={{ '--tw-ring-color': 'rgba(255, 107, 74, 0.3)', borderColor: '#e5e7eb' } as React.CSSProperties}
             />
-            <div className="flex gap-2 flex-shrink-0">
+            <div className="flex gap-1.5 sm:gap-2 flex-shrink-0">
               <Button
                 size="icon"
                 variant="ghost"
                 className={cn(
-                  "rounded-xl h-11 w-11 sm:h-12 sm:w-12 transition-all duration-300",
+                  "rounded-lg sm:rounded-xl h-9 w-9 sm:h-12 sm:w-12 transition-all duration-300",
                   isListening 
                     ? "bg-red-100 text-red-600 hover:bg-red-200 animate-pulse" 
                     : "hover:bg-slate-100 text-slate-500"
@@ -208,7 +208,7 @@ export function ChatInterface({ messages, input, setInput, onSendMessage, isLoad
                 disabled={isLoading}
                 title={isListening ? "Stop Recording" : "Voice Input"}
               >
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="sm:w-5 sm:h-5">
                   <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z" />
                   <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
                   <line x1="12" x2="12" y1="19" y2="22" />
@@ -216,7 +216,7 @@ export function ChatInterface({ messages, input, setInput, onSendMessage, isLoad
               </Button>
               <Button
                 size="icon"
-                className="rounded-xl h-11 w-11 sm:h-12 sm:w-12 transition-all duration-300 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed border-0"
+                className="rounded-lg sm:rounded-xl h-9 w-9 sm:h-12 sm:w-12 transition-all duration-300 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed border-0"
                 style={{
                   background: input.trim() ? 'linear-gradient(135deg, #ff6b4a 0%, #ff8c6b 100%)' : 'rgb(226, 232, 240)',
                   color: input.trim() ? 'white' : 'rgb(148, 163, 184)'
@@ -225,7 +225,7 @@ export function ChatInterface({ messages, input, setInput, onSendMessage, isLoad
                 disabled={!input.trim() || isLoading}
                 title="Send Message"
               >
-                <Send className="h-5 w-5" />
+                <Send className="h-4 w-4 sm:h-5 sm:w-5" />
               </Button>
             </div>
           </div>

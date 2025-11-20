@@ -128,8 +128,8 @@ export default function Home() {
       />
       
       
-      <div className="flex-1 flex items-center justify-center p-2 sm:p-3 md:p-4">
-        <div className="w-full h-full rounded-2xl overflow-hidden shadow-2xl">
+      <div className="flex-1 flex items-center justify-center p-0 md:p-4">
+        <div className="w-full h-full md:rounded-2xl overflow-hidden md:shadow-2xl">
           {mode === 'chat' ? (
             <ChatInterface
               messages={messages}
