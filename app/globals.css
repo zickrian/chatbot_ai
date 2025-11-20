@@ -122,9 +122,19 @@
     @apply bg-background text-foreground;
   }
   html, body {
-    @apply h-full w-full overflow-hidden;
+    @apply w-full overflow-hidden;
+    height: 100dvh;
+    position: fixed;
+    overscroll-behavior: none;
   }
   #__next {
-    @apply h-full;
+    height: 100dvh;
+  }
+  
+  /* Mobile viewport fix */
+  @supports (-webkit-touch-callout: none) {
+    html, body {
+      height: -webkit-fill-available;
+    }
   }
 }

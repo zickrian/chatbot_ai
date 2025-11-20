@@ -93,7 +93,7 @@ export function ChatInterface({ messages, input, setInput, onSendMessage, isLoad
   };
 
   return (
-    <div className="flex flex-col h-full w-full overflow-hidden" style={{ backgroundColor: '#f5f6f8' }}>
+    <div className="flex flex-col w-full overflow-hidden" style={{ backgroundColor: '#f5f6f8', height: '100%' }}>
       {/* Messages Area */}
       <ScrollArea className="flex-1 overflow-y-auto">
         <div className="max-w-4xl mx-auto space-y-3 sm:space-y-6 p-2 sm:p-6 py-3 sm:py-8">

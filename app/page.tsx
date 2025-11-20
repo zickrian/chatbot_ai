@@ -114,7 +114,7 @@ export default function Home() {
   };
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden" style={{ backgroundColor: '#334155' }}>
+    <div className="flex w-screen overflow-hidden" style={{ backgroundColor: '#334155', height: '100dvh' }}>
       <ChatSidebar
         onNewChat={handleNewChat}
         onDownload={handleDownloadTranscript}
