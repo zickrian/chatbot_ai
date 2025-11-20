@@ -5,11 +5,12 @@ import { Plus, Download, History, ScanEye, X } from "lucide-react";
 interface ChatSidebarProps {
   onNewChat: () => void;
   onDownload: () => void;
+  onObjectDetection: () => void;
   isOpen: boolean;
   onClose: () => void;
 }
 
-export function ChatSidebar({ onNewChat, onDownload, isOpen, onClose }: ChatSidebarProps) {
+export function ChatSidebar({ onNewChat, onDownload, onObjectDetection, isOpen, onClose }: ChatSidebarProps) {
   return (
     <>
       {/* Overlay untuk mobile */}
@@ -26,6 +27,7 @@ export function ChatSidebar({ onNewChat, onDownload, isOpen, onClose }: ChatSide
           w-64 sm:w-72 text-sidebar-foreground 
           flex flex-col h-screen
           z-40
+          border-r-0 shadow-none
           transition-transform duration-300 ease-in-out
           ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
         `}
@@ -97,6 +99,7 @@ export function ChatSidebar({ onNewChat, onDownload, isOpen, onClose }: ChatSide
                 <Button
                   variant="ghost"
                   className="w-full justify-start gap-2 sm:gap-3 text-sidebar-foreground/90 hover:bg-white/10 hover:text-white transition-colors h-9 sm:h-10 text-xs sm:text-sm rounded-lg"
+                  onClick={onObjectDetection}
                 >
                   <ScanEye className="w-3.5 h-3.5 sm:w-4 sm:h-4 opacity-70" />
                   <span className="truncate">Object Detection</span>

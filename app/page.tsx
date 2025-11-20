@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { ChatSidebar } from "@/components/chat-sidebar";
 import { ChatInterface, Message } from "@/components/chat-interface";
+import { ObjectDetection } from "@/components/object-detection";
 import { jsPDF } from "jspdf";
 
 export default function Home() {
@@ -10,6 +11,7 @@ export default function Home() {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [mode, setMode] = useState<'chat' | 'object-detection'>('chat');
 
   const handleSendMessage = async () => {
     if (!input.trim()) return;
@@ -121,23 +123,31 @@ export default function Home() {
   };
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden">
+    <div className="flex h-screen w-screen overflow-hidden" style={{ backgroundColor: '#334155' }}>
       <ChatSidebar
         onNewChat={handleNewChat}
         onDownload={handleDownloadTranscript}
+        onObjectDetection={() => {
+          setMode('object-detection');
+          setIsSidebarOpen(false);
+        }}
         isOpen={isSidebarOpen}
         onClose={() => setIsSidebarOpen(false)}
       />
-      <div className="flex-1 flex items-center justify-center p-2 sm:p-3 md:p-4" style={{ backgroundColor: '#334155' }}>
+      <div className="flex-1 flex items-center justify-center p-2 sm:p-3 md:p-4">
         <div className="w-full h-full rounded-2xl overflow-hidden shadow-2xl">
-          <ChatInterface
-            messages={messages}
-            input={input}
-            setInput={setInput}
-            onSendMessage={handleSendMessage}
-            isLoading={isLoading}
-            onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
-          />
+          {mode === 'chat' ? (
+            <ChatInterface
+              messages={messages}
+              input={input}
+              setInput={setInput}
+              onSendMessage={handleSendMessage}
+              isLoading={isLoading}
+              onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
+            />
+          ) : (
+            <ObjectDetection onClose={() => setMode('chat')} />
+          )}
         </div>
       </div>
     </div>
