@@ -23,15 +23,10 @@ interface ChatInterfaceProps {
 }
 
 export function ChatInterface({ messages, input, setInput, onSendMessage, isLoading, onToggleSidebar }: ChatInterfaceProps) {
-  const scrollRef = useRef<HTMLDivElement>(null);
   const [isListening, setIsListening] = React.useState(false);
   const recognitionRef = useRef<any>(null);
 
-  useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollIntoView({ behavior: 'smooth' });
-    }
-  }, [messages]);
+  // Removed auto-scroll to allow manual scrolling for reading chat history
 
   // Initialize Speech Recognition
   useEffect(() => {
@@ -93,7 +88,19 @@ export function ChatInterface({ messages, input, setInput, onSendMessage, isLoad
   };
 
   return (
-    <div className="flex flex-col w-full overflow-hidden" style={{ backgroundColor: '#f5f6f8', height: '100%' }}>
+    <div className="flex flex-col w-full overflow-hidden relative" style={{ backgroundColor: '#f5f6f8', height: '100%' }}>
+      {/* Fixed Menu Button - Always visible on mobile when there are messages */}
+      {messages.length > 0 && (
+        <Button
+          variant="ghost"
+          size="icon"
+          className="lg:hidden fixed top-2 left-2 h-10 w-10 z-50 bg-white/90 backdrop-blur-sm shadow-lg hover:bg-white"
+          onClick={onToggleSidebar}
+        >
+          <Menu className="w-5 h-5 text-slate-700" />
+        </Button>
+      )}
+      
       {/* Messages Area */}
       <ScrollArea className="flex-1 overflow-y-auto">
         <div className="max-w-4xl mx-auto space-y-3 sm:space-y-6 p-2 sm:p-6 py-3 sm:py-8">
@@ -178,7 +185,6 @@ export function ChatInterface({ messages, input, setInput, onSendMessage, isLoad
               </div>
             </div>
           )}
-          <div ref={scrollRef} />
         </div>
       </ScrollArea>
 
