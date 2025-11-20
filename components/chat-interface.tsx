@@ -20,9 +20,10 @@ interface ChatInterfaceProps {
   onSendMessage: () => void;
   isLoading?: boolean;
   onToggleSidebar: () => void;
+  isSidebarOpen?: boolean;
 }
 
-export function ChatInterface({ messages, input, setInput, onSendMessage, isLoading, onToggleSidebar }: ChatInterfaceProps) {
+export function ChatInterface({ messages, input, setInput, onSendMessage, isLoading, onToggleSidebar, isSidebarOpen }: ChatInterfaceProps) {
   const [isListening, setIsListening] = React.useState(false);
   const recognitionRef = useRef<any>(null);
 
@@ -89,8 +90,8 @@ export function ChatInterface({ messages, input, setInput, onSendMessage, isLoad
 
   return (
     <div className="flex flex-col w-full overflow-hidden relative" style={{ backgroundColor: '#f5f6f8', height: '100%' }}>
-      {/* Fixed Menu Button - Always visible on mobile when there are messages */}
-      {messages.length > 0 && (
+      {/* Fixed Menu Button - Always visible on mobile when there are messages and sidebar is closed */}
+      {messages.length > 0 && !isSidebarOpen && (
         <Button
           variant="ghost"
           size="icon"

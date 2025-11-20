@@ -138,6 +138,7 @@ export default function Home() {
               onSendMessage={handleSendMessage}
               isLoading={isLoading}
               onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
+              isSidebarOpen={isSidebarOpen}
             />
           ) : (
             <ObjectDetection onClose={() => setMode('chat')} />
