@@ -137,4 +137,21 @@
       height: -webkit-fill-available;
     }
   }
+  
+  /* Prevent zoom on input focus for mobile */
+  input[type="text"],
+  input[type="email"],
+  input[type="tel"],
+  input[type="number"],
+  input[type="search"],
+  textarea {
+    font-size: 16px !important;
+  }
+  
+  /* Ensure inputs don't trigger zoom on mobile */
+  @media screen and (max-width: 768px) {
+    input, textarea, select {
+      font-size: 16px !important;
+    }
+  }
 }
