@@ -39,36 +39,24 @@ export function ObjectDetection({ onClose }: ObjectDetectionProps) {
     const loadModel = async () => {
       try {
         setLoading(true);
-        // Check if WebGPU is available
-        const modelPath = `${window.location.origin}/models/yolo.onnx`;
-        console.log("Attempting to load model from:", modelPath);
+        console.log("Attempting to load model from: /models/yolo.onnx");
         
+        // Try WASM first (more stable for YOLOv8)
         const session = await ort.InferenceSession.create(
           "/models/yolo.onnx",
           {
-            executionProviders: ["webgpu"],
+            executionProviders: ["wasm"],
           }
         );
+        console.log("Model loaded with WASM");
+        console.log("Input names:", session.inputNames);
+        console.log("Output names:", session.outputNames);
         setModel(session);
         setLoading(false);
       } catch (e: any) {
         console.error("Failed to load model:", e);
-        // Fallback to WASM if WebGPU fails (optional, but user insisted on WebGPU)
-        try {
-            console.log("Falling back to wasm");
-             const session = await ort.InferenceSession.create(
-                "/models/yolo.onnx",
-                {
-                  executionProviders: ["wasm"],
-                }
-              );
-              setModel(session);
-              setLoading(false);
-        } catch (e2: any) {
-             setError("Failed to load model. Please ensure 'public/models/yolo.onnx' exists and WebGPU is enabled.");
-             setLoading(false);
-        }
-       
+        setError(`Failed to load model: ${e.message}`);
+        setLoading(false);
       }
     };
 
@@ -82,17 +70,22 @@ export function ObjectDetection({ onClose }: ObjectDetectionProps) {
     let animationId: number;
 
     const runInference = async () => {
-      if (!webcamRef.current?.video || !model || !canvasRef.current) return;
+      const canvas = canvasRef.current;
+      const video = webcamRef.current?.video;
+      
+      if (!video || !model || !canvas) {
+        animationId = requestAnimationFrame(runInference);
+        return;
+      }
 
-      const video = webcamRef.current.video;
       if (video.readyState !== 4) {
         animationId = requestAnimationFrame(runInference);
         return;
       }
 
       const { videoWidth, videoHeight } = video;
-      canvasRef.current.width = videoWidth;
-      canvasRef.current.height = videoHeight;
+      canvas.width = videoWidth;
+      canvas.height = videoHeight;
 
       // Preprocess
       const input = preprocess(video, 640, 640);
@@ -102,10 +95,14 @@ export function ObjectDetection({ onClose }: ObjectDetectionProps) {
         feeds[model.inputNames[0]] = input;
         
         const outputMap = await model.run(feeds);
-        const output = outputMap[model.outputNames[0]];
+        // Use the first output name dynamically (handles "output0", "output", etc.)
+        const outputName = model.outputNames[0];
+        const output = outputMap[outputName];
         
         // Postprocess and draw
-        drawBoxes(output, canvasRef.current, videoWidth, videoHeight);
+        if (canvas && output) {
+          drawBoxes(output, canvas, videoWidth, videoHeight);
+        }
       } catch (e) {
         console.error("Inference error:", e);
       }
@@ -176,107 +173,152 @@ function preprocess(image: HTMLVideoElement, modelWidth: number, modelHeight: nu
   const imageData = ctx.getImageData(0, 0, modelWidth, modelHeight);
   const { data } = imageData;
 
-  const red = new Float32Array(modelWidth * modelHeight);
-  const green = new Float32Array(modelWidth * modelHeight);
-  const blue = new Float32Array(modelWidth * modelHeight);
-
-  for (let i = 0; i < data.length; i += 4) {
-    red[i / 4] = data[i] / 255.0;
-    green[i / 4] = data[i + 1] / 255.0;
-    blue[i / 4] = data[i + 2] / 255.0;
-  }
-
   const input = new Float32Array(modelWidth * modelHeight * 3);
-  input.set(red, 0);
-  input.set(green, modelWidth * modelHeight);
-  input.set(blue, modelWidth * modelHeight * 2);
+  
+  for (let i = 0; i < modelWidth * modelHeight; i++) {
+    const r = data[i * 4] / 255.0;
+    const g = data[i * 4 + 1] / 255.0;
+    const b = data[i * 4 + 2] / 255.0;
+
+    // CHW Layout: RRR...GGG...BBB...
+    input[i] = r;
+    input[i + modelWidth * modelHeight] = g;
+    input[i + 2 * modelWidth * modelHeight] = b;
+  }
 
   return new ort.Tensor("float32", input, [1, 3, modelHeight, modelWidth]);
 }
+
+let loggedOnce = false;
 
 function drawBoxes(output: ort.Tensor, canvas: HTMLCanvasElement, imgWidth: number, imgHeight: number) {
   const ctx = canvas.getContext("2d");
   if (!ctx) return;
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  // YOLOv8 output shape: [1, 84, 8400] (cx, cy, w, h, 80 classes)
-  // We need to transpose it to [8400, 84] for easier processing
-  const numAnchors = output.dims[2]; // 8400
-  const numClass = output.dims[1] - 4; // 80
   const data = output.data as Float32Array;
+  const dims = output.dims;
 
-  const boxes = [];
-  
-  // Loop through anchors
-  for (let i = 0; i < numAnchors; i++) {
-    // Find max class score
-    let maxScore = 0;
-    let maxClass = -1;
-    
-    // The data is flattened. 
-    // Stride is numAnchors.
-    // [0][0] is cx of anchor 0
-    // [0][1] is cx of anchor 1
-    // ...
-    // [1][0] is cy of anchor 0
-    
-    // So for anchor i:
-    // cx = data[0 * numAnchors + i]
-    // cy = data[1 * numAnchors + i]
-    // w  = data[2 * numAnchors + i]
-    // h  = data[3 * numAnchors + i]
-    // class 0 = data[4 * numAnchors + i]
-    
-    for (let c = 0; c < numClass; c++) {
-        const score = data[(4 + c) * numAnchors + i];
-        if (score > maxScore) {
-            maxScore = score;
-            maxClass = c;
-        }
-    }
-
-    if (maxScore > 0.45) { // Threshold
-        const cx = data[0 * numAnchors + i];
-        const cy = data[1 * numAnchors + i];
-        const w = data[2 * numAnchors + i];
-        const h = data[3 * numAnchors + i];
-
-        const x = (cx - w / 2) / 640 * imgWidth;
-        const y = (cy - h / 2) / 640 * imgHeight;
-        const width = (w / 640) * imgWidth;
-        const height = (h / 640) * imgHeight;
-
-        boxes.push({
-            x, y, width, height, score: maxScore, class: maxClass, label: labels[maxClass]
-        });
-    }
+  // Debug: log output shape once
+  if (!loggedOnce) {
+    console.log("Output shape:", dims);
+    console.log("Output type:", output.type);
+    console.log("Sample data (first 20):", Array.from(data.slice(0, 20)));
+    loggedOnce = true;
   }
 
-  // NMS (Simple version)
-  const sortedBoxes = boxes.sort((a, b) => b.score - a.score);
-  const resultBoxes = [];
-  
-  while (sortedBoxes.length > 0) {
+  let boxes: Array<{x: number, y: number, width: number, height: number, score: number, class: number, label: string}> = [];
+
+  // Detect output format
+  if (dims.length === 3 && dims[2] === 6) {
+    // Format: [1, N, 6] - End2End with NMS (x1, y1, x2, y2, score, class_id)
+    const numDet = dims[1];
+    
+    for (let i = 0; i < numDet; i++) {
+      const x1 = data[i * 6 + 0];
+      const y1 = data[i * 6 + 1];
+      const x2 = data[i * 6 + 2];
+      const y2 = data[i * 6 + 3];
+      const score = data[i * 6 + 4];
+      const classId = Math.round(data[i * 6 + 5]);
+
+      if (score < 0.25) continue;
+
+      const scaleX = imgWidth / 640;
+      const scaleY = imgHeight / 640;
+
+      boxes.push({
+        x: x1 * scaleX,
+        y: y1 * scaleY,
+        width: (x2 - x1) * scaleX,
+        height: (y2 - y1) * scaleY,
+        score,
+        class: classId,
+        label: labels[classId] || `cls ${classId}`,
+      });
+    }
+  } else if (dims.length === 3 && dims[1] === 84 && dims[2] === 8400) {
+    // Format: [1, 84, 8400] - Raw YOLOv8 output
+    // YOLOv8 ONNX outputs are already decoded to [x_center, y_center, width, height] in pixel coordinates
+    const numAnchors = dims[2]; // 8400
+    const numClass = dims[1] - 4; // 80
+
+    // Process each anchor
+    for (let i = 0; i < numAnchors; i++) {
+      // Find max class score
+      let maxScore = 0;
+      let maxClass = -1;
+      
+      for (let c = 0; c < numClass; c++) {
+        const score = data[(4 + c) * numAnchors + i];
+        if (score > maxScore) {
+          maxScore = score;
+          maxClass = c;
+        }
+      }
+
+      if (maxScore > 0.25) {
+        // YOLOv8 ONNX already outputs decoded coordinates in pixel space (0-640)
+        const x_center = data[0 * numAnchors + i];
+        const y_center = data[1 * numAnchors + i];
+        const width = data[2 * numAnchors + i];
+        const height = data[3 * numAnchors + i];
+
+        // Scale from 640x640 to actual image size
+        const scaleX = imgWidth / 640;
+        const scaleY = imgHeight / 640;
+
+        boxes.push({
+          x: (x_center - width / 2) * scaleX,
+          y: (y_center - height / 2) * scaleY,
+          width: width * scaleX,
+          height: height * scaleY,
+          score: maxScore,
+          class: maxClass,
+          label: labels[maxClass] || `cls ${maxClass}`,
+        });
+      }
+    }
+
+    // Apply NMS for raw format
+    const sortedBoxes = boxes.sort((a, b) => b.score - a.score);
+    const resultBoxes = [];
+    
+    while (sortedBoxes.length > 0) {
       const current = sortedBoxes.shift();
       if (!current) break;
       resultBoxes.push(current);
 
       for (let i = sortedBoxes.length - 1; i >= 0; i--) {
-          if (iou(current, sortedBoxes[i]) > 0.5) {
-              sortedBoxes.splice(i, 1);
-          }
+        if (sortedBoxes[i].class === current.class && iou(current, sortedBoxes[i]) > 0.45) {
+          sortedBoxes.splice(i, 1);
+        }
       }
+    }
+    boxes = resultBoxes;
   }
 
-  // Draw
-  resultBoxes.forEach(box => {
-      ctx.strokeStyle = "#00FF00";
-      ctx.lineWidth = 4;
-      ctx.strokeRect(box.x, box.y, box.width, box.height);
-      
-      ctx.fillStyle = "#00FF00";
-      ctx.font = "18px Arial";
-      ctx.fillText(`${box.label} ${(box.score * 100).toFixed(1)}%`, box.x, box.y > 20 ? box.y - 5 : box.y + 20);
+  // Debug: log detections
+  if (boxes.length > 0 && !loggedOnce) {
+    console.log(`Found ${boxes.length} detections:`, boxes.slice(0, 3));
+  }
+
+  // Draw all boxes
+  boxes.forEach(box => {
+    ctx.strokeStyle = "#00FF00";
+    ctx.lineWidth = 3;
+    ctx.strokeRect(box.x, box.y, box.width, box.height);
+    
+    const label = `${box.label} ${(box.score * 100).toFixed(0)}%`;
+    ctx.font = "16px Arial";
+    const textWidth = ctx.measureText(label).width;
+    
+    ctx.fillStyle = "#00FF00";
+    const labelY = box.y > 25 ? box.y - 25 : box.y;
+    ctx.fillRect(box.x, labelY, textWidth + 10, 25);
+    
+    ctx.fillStyle = "#000000";
+    ctx.fillText(label, box.x + 5, labelY + 18);
   });
 }
 

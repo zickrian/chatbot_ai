@@ -36,7 +36,7 @@ export function ChatSidebar({ onNewChat, onDownload, onObjectDetection, isOpen, 
 
         <div className="p-4 sm:p-5 flex items-center gap-3 relative z-10 flex-shrink-0">
           <img
-            src="https://i.postimg.cc/wxyGpGKG/Untitled-design.png"
+            src="/Untitled-design.png"
             alt="Polsek Rembang Logo"
             className="w-9 h-9 sm:w-10 sm:h-10 rounded-full object-cover"
           />

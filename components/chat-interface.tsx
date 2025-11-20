@@ -58,7 +58,7 @@ export function ChatInterface({ messages, input, setInput, onSendMessage, isLoad
           {messages.length === 0 && (
             <div className="text-center text-slate-500 py-12 sm:py-20 px-4">
               <img 
-                src="https://i.postimg.cc/wxyGpGKG/Untitled-design.png" 
+                src="/Untitled-design.png" 
                 alt="Polsek Rembang Logo" 
                 className="w-20 h-20 sm:w-24 sm:h-24 rounded-full object-cover mx-auto mb-4 sm:mb-6 shadow-lg"
               />
@@ -79,7 +79,7 @@ export function ChatInterface({ messages, input, setInput, onSendMessage, isLoad
             >
               {message.role === 'assistant' ? (
                 <img 
-                  src="https://i.postimg.cc/wxyGpGKG/Untitled-design.png" 
+                  src="/Untitled-design.png" 
                   alt="Logo" 
                   className="h-7 w-7 sm:h-9 sm:w-9 mt-1 rounded-full object-cover shadow-sm transition-transform group-hover:scale-105 flex-shrink-0"
                 />
@@ -115,7 +115,7 @@ export function ChatInterface({ messages, input, setInput, onSendMessage, isLoad
           {isLoading && (
             <div className="flex gap-2 sm:gap-3 max-w-[90%] sm:max-w-[85%]">
               <img 
-                src="https://i.postimg.cc/wxyGpGKG/Untitled-design.png" 
+                src="/Untitled-design.png" 
                 alt="Logo" 
                 className="h-7 w-7 sm:h-9 sm:w-9 mt-1 rounded-full object-cover shadow-sm flex-shrink-0"
               />

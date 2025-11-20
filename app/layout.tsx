@@ -15,6 +15,11 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Polsek Rembang Chatbot",
   description: "Asisten Virtual Layanan Kepolisian Polsek Rembang",
+  icons: {
+    icon: "/Untitled-design.png",
+    shortcut: "/Untitled-design.png",
+    apple: "/Untitled-design.png",
+  },
 };
 
 export default function RootLayout({
