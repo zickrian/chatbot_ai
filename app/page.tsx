@@ -1,65 +1,145 @@
-import Image from "next/image";
+"use client";
+
+import React, { useState } from 'react';
+import { ChatSidebar } from "@/components/chat-sidebar";
+import { ChatInterface, Message } from "@/components/chat-interface";
+import { jsPDF } from "jspdf";
 
 export default function Home() {
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [input, setInput] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  const handleSendMessage = async () => {
+    if (!input.trim()) return;
+
+    const userMessage: Message = {
+      id: Date.now().toString(),
+      role: 'user',
+      content: input,
+      timestamp: new Date()
+    };
+
+    setMessages(prev => [...prev, userMessage]);
+    setInput('');
+    setIsLoading(true);
+
+    // Simulate AI response
+    setTimeout(() => {
+      const responses = [
+        "Terima kasih atas laporannya. Bisa dijelaskan lebih detail mengenai kejadian tersebut?",
+        "Baik, saya mengerti. Apakah ada saksi mata di lokasi kejadian?",
+        "Untuk layanan SKCK, Anda bisa datang langsung ke Polsek pada jam kerja dengan membawa dokumen persyaratan.",
+        "Mohon tunggu sebentar, saya sedang memproses informasi Anda.",
+        "Siap, laporan Anda telah kami catat. Petugas kami akan segera menindaklanjuti."
+      ];
+      const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+
+      const aiMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        role: 'assistant',
+        content: randomResponse,
+        timestamp: new Date()
+      };
+
+      setMessages(prev => [...prev, aiMessage]);
+      setIsLoading(false);
+    }, 1500);
+  };
+
+  const handleNewChat = () => {
+    setMessages([]);
+  };
+
+  const handleDownloadTranscript = () => {
+    const doc = new jsPDF();
+
+    // Header
+    doc.setFillColor(15, 76, 146); // #0f4c92
+    doc.rect(0, 0, 210, 40, 'F');
+
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(22);
+    doc.setFont("helvetica", "bold");
+    doc.text("POLSEK REMBANG", 20, 20);
+
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "normal");
+    doc.text("Transkrip Chat Layanan Masyarakat", 20, 30);
+
+    // Content
+    doc.setTextColor(0, 0, 0);
+    doc.setFontSize(10);
+
+    let y = 50;
+    const pageHeight = doc.internal.pageSize.height;
+
+    messages.forEach((msg) => {
+      const role = msg.role === 'user' ? "PELAPOR" : "POLSEK REMBANG";
+      const time = msg.timestamp.toLocaleTimeString();
+      const header = `${role} [${time}]`;
+
+      // Role Header
+      doc.setFont("helvetica", "bold");
+      if (msg.role === 'assistant') {
+        doc.setTextColor(15, 76, 146); // #0f4c92
+      } else {
+        doc.setTextColor(100, 100, 100); // Gray
+      }
+
+      if (y > pageHeight - 20) {
+        doc.addPage();
+        y = 20;
+      }
+
+      doc.text(header, 20, y);
+      y += 5;
+
+      // Message Body
+      doc.setFont("helvetica", "normal");
+      doc.setTextColor(0, 0, 0);
+
+      const splitText = doc.splitTextToSize(msg.content, 170);
+
+      if (y + splitText.length * 5 > pageHeight - 20) {
+        doc.addPage();
+        y = 20;
+      }
+
+      doc.text(splitText, 20, y);
+      y += splitText.length * 5 + 10; // Spacing between messages
+    });
+
+    // Footer
+    const date = new Date().toLocaleDateString();
+    doc.setFontSize(8);
+    doc.setTextColor(150, 150, 150);
+    doc.text(`Dicetak pada: ${date}`, 20, pageHeight - 10);
+
+    doc.save(`transkrip-polsek-rembang-${Date.now()}.pdf`);
+  };
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div className="flex h-screen w-screen overflow-hidden">
+      <ChatSidebar
+        onNewChat={handleNewChat}
+        onDownload={handleDownloadTranscript}
+        isOpen={isSidebarOpen}
+        onClose={() => setIsSidebarOpen(false)}
+      />
+      <div className="flex-1 flex items-center justify-center p-2 sm:p-3 md:p-4" style={{ backgroundColor: '#334155' }}>
+        <div className="w-full h-full rounded-2xl overflow-hidden shadow-2xl">
+          <ChatInterface
+            messages={messages}
+            input={input}
+            setInput={setInput}
+            onSendMessage={handleSendMessage}
+            isLoading={isLoading}
+            onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
+          />
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+      </div>
     </div>
   );
 }
