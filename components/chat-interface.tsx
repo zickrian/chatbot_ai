@@ -24,12 +24,66 @@ interface ChatInterfaceProps {
 
 export function ChatInterface({ messages, input, setInput, onSendMessage, isLoading, onToggleSidebar }: ChatInterfaceProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [isListening, setIsListening] = React.useState(false);
+  const recognitionRef = useRef<any>(null);
 
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollIntoView({ behavior: 'smooth' });
     }
   }, [messages]);
+
+  // Initialize Speech Recognition
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+      
+      if (SpeechRecognition) {
+        const recognition = new SpeechRecognition();
+        recognition.lang = 'id-ID'; // Bahasa Indonesia
+        recognition.continuous = false;
+        recognition.interimResults = false;
+
+        recognition.onresult = (event: any) => {
+          const transcript = event.results[0][0].transcript;
+          setInput(transcript);
+          setIsListening(false);
+        };
+
+        recognition.onerror = (event: any) => {
+          console.error('Speech recognition error:', event.error);
+          setIsListening(false);
+        };
+
+        recognition.onend = () => {
+          setIsListening(false);
+        };
+
+        recognitionRef.current = recognition;
+      }
+    }
+
+    return () => {
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+      }
+    };
+  }, [setInput]);
+
+  const toggleListening = () => {
+    if (!recognitionRef.current) {
+      alert('Speech recognition tidak didukung di browser ini. Gunakan Chrome atau Edge.');
+      return;
+    }
+
+    if (isListening) {
+      recognitionRef.current.stop();
+      setIsListening(false);
+    } else {
+      recognitionRef.current.start();
+      setIsListening(true);
+    }
+  };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -40,23 +94,19 @@ export function ChatInterface({ messages, input, setInput, onSendMessage, isLoad
 
   return (
     <div className="flex flex-col h-full w-full overflow-hidden" style={{ backgroundColor: '#f5f6f8' }}>
-      {/* Header */}
-      <header className="h-14 sm:h-16 flex items-center px-3 sm:px-6 bg-white/80 backdrop-blur-md z-10 flex-shrink-0">
-        <Button
-          variant="ghost"
-          size="icon"
-          className="lg:hidden mr-1 sm:mr-2 h-8 w-8 sm:h-10 sm:w-10"
-          onClick={onToggleSidebar}
-        >
-          <Menu className="w-4 h-4 sm:w-5 sm:h-5" />
-        </Button>
-      </header>
-
       {/* Messages Area */}
-      <ScrollArea className="flex-1 overflow-y-auto">
+      <ScrollArea className="flex-1 overflow-y-auto pt-4">
         <div className="max-w-4xl mx-auto space-y-4 sm:space-y-6 p-3 sm:p-6 py-4 sm:py-8">
           {messages.length === 0 && (
             <div className="text-center text-slate-500 py-12 sm:py-20 px-4">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="lg:hidden absolute top-4 left-4 h-10 w-10"
+                onClick={onToggleSidebar}
+              >
+                <Menu className="w-5 h-5" />
+              </Button>
               <img 
                 src="/Untitled-design.png" 
                 alt="Polsek Rembang Logo" 
@@ -148,8 +198,15 @@ export function ChatInterface({ messages, input, setInput, onSendMessage, isLoad
               <Button
                 size="icon"
                 variant="ghost"
-                className="rounded-xl h-11 w-11 sm:h-12 sm:w-12 hover:bg-slate-100 text-slate-500 transition-colors"
-                title="Voice Input"
+                className={cn(
+                  "rounded-xl h-11 w-11 sm:h-12 sm:w-12 transition-all duration-300",
+                  isListening 
+                    ? "bg-red-100 text-red-600 hover:bg-red-200 animate-pulse" 
+                    : "hover:bg-slate-100 text-slate-500"
+                )}
+                onClick={toggleListening}
+                disabled={isLoading}
+                title={isListening ? "Stop Recording" : "Voice Input"}
               >
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z" />

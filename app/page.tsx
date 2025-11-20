@@ -27,27 +27,18 @@ export default function Home() {
     setInput('');
     setIsLoading(true);
 
-    // Simulate AI response
+    // Auto-reply: Coming Soon
     setTimeout(() => {
-      const responses = [
-        "Terima kasih atas laporannya. Bisa dijelaskan lebih detail mengenai kejadian tersebut?",
-        "Baik, saya mengerti. Apakah ada saksi mata di lokasi kejadian?",
-        "Untuk layanan SKCK, Anda bisa datang langsung ke Polsek pada jam kerja dengan membawa dokumen persyaratan.",
-        "Mohon tunggu sebentar, saya sedang memproses informasi Anda.",
-        "Siap, laporan Anda telah kami catat. Petugas kami akan segera menindaklanjuti."
-      ];
-      const randomResponse = responses[Math.floor(Math.random() * responses.length)];
-
       const aiMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: randomResponse,
+        content: "🚧 Maaf, fitur chatbot masih dalam tahap pengembangan (Coming Soon).\n\n✅ Fitur yang tersedia saat ini:\n• Object Detection - Klik menu di sidebar untuk mengakses kamera dan deteksi objek real-time.\n\nTerima kasih atas pengertiannya! 🙏",
         timestamp: new Date()
       };
 
       setMessages(prev => [...prev, aiMessage]);
       setIsLoading(false);
-    }, 1500);
+    }, 1000);
   };
 
   const handleNewChat = () => {
@@ -133,6 +124,7 @@ export default function Home() {
         }}
         isOpen={isSidebarOpen}
         onClose={() => setIsSidebarOpen(false)}
+        currentMode={mode}
       />
       <div className="flex-1 flex items-center justify-center p-2 sm:p-3 md:p-4">
         <div className="w-full h-full rounded-2xl overflow-hidden shadow-2xl">

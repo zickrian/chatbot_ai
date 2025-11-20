@@ -8,9 +8,10 @@ interface ChatSidebarProps {
   onObjectDetection: () => void;
   isOpen: boolean;
   onClose: () => void;
+  currentMode: 'chat' | 'object-detection';
 }
 
-export function ChatSidebar({ onNewChat, onDownload, onObjectDetection, isOpen, onClose }: ChatSidebarProps) {
+export function ChatSidebar({ onNewChat, onDownload, onObjectDetection, isOpen, onClose, currentMode }: ChatSidebarProps) {
   return (
     <>
       {/* Overlay untuk mobile */}
@@ -60,10 +61,14 @@ export function ChatSidebar({ onNewChat, onDownload, onObjectDetection, isOpen, 
         <div className="p-3 sm:p-4 relative z-10 flex-shrink-0">
           <Button
             onClick={onNewChat}
-            className="w-full justify-start gap-2 sm:gap-3 text-white hover:opacity-90 shadow-lg hover:shadow-xl transition-all duration-300 font-semibold py-5 sm:py-6 text-sm sm:text-base rounded-xl border-0"
-            style={{ background: 'linear-gradient(135deg, #ff6b4a 0%, #ff8c6b 100%)' }}
+            className={`w-full justify-start gap-2 sm:gap-3 transition-all duration-300 font-semibold py-5 sm:py-6 text-sm sm:text-base rounded-xl border-0 ${
+              currentMode === 'chat' 
+                ? 'text-white shadow-lg hover:shadow-xl hover:opacity-90' 
+                : 'text-sidebar-foreground/70 hover:bg-white/10 hover:text-white'
+            }`}
+            style={currentMode === 'chat' ? { background: 'linear-gradient(135deg, #ff6b4a 0%, #ff8c6b 100%)' } : { backgroundColor: 'transparent' }}
           >
-            <div className="bg-white/20 p-1 rounded-md">
+            <div className={currentMode === 'chat' ? 'bg-white/20 p-1 rounded-md' : 'bg-white/10 p-1 rounded-md'}>
               <Plus className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </div>
             New Chat
@@ -98,7 +103,12 @@ export function ChatSidebar({ onNewChat, onDownload, onObjectDetection, isOpen, 
               <div className="space-y-1">
                 <Button
                   variant="ghost"
-                  className="w-full justify-start gap-2 sm:gap-3 text-sidebar-foreground/90 hover:bg-white/10 hover:text-white transition-colors h-9 sm:h-10 text-xs sm:text-sm rounded-lg"
+                  className={`w-full justify-start gap-2 sm:gap-3 transition-all h-9 sm:h-10 text-xs sm:text-sm rounded-lg ${
+                    currentMode === 'object-detection'
+                      ? 'text-white font-semibold shadow-md border-0'
+                      : 'text-sidebar-foreground/90 hover:bg-white/10 hover:text-white'
+                  }`}
+                  style={currentMode === 'object-detection' ? { background: 'linear-gradient(135deg, #ff6b4a 0%, #ff8c6b 100%)' } : {}}
                   onClick={onObjectDetection}
                 >
                   <ScanEye className="w-3.5 h-3.5 sm:w-4 sm:h-4 opacity-70" />
