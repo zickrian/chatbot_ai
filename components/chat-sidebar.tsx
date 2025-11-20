@@ -98,7 +98,7 @@ export function ChatSidebar({ onNewChat, onDownload, onObjectDetection, isOpen, 
             {/* YOLO Section */}
             <div className="space-y-2 sm:space-y-3">
               <h3 className="text-[10px] sm:text-xs font-bold text-sidebar-foreground/40 uppercase tracking-widest px-2 sm:px-3 flex items-center gap-2">
-                Systems
+                Experiment
               </h3>
               <div className="space-y-1">
                 <Button
