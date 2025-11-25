@@ -26,8 +26,16 @@ interface ChatInterfaceProps {
 export function ChatInterface({ messages, input, setInput, onSendMessage, isLoading, onToggleSidebar, isSidebarOpen }: ChatInterfaceProps) {
   const [isListening, setIsListening] = React.useState(false);
   const recognitionRef = useRef<any>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Removed auto-scroll to allow manual scrolling for reading chat history
+  // Auto-scroll to bottom when new messages arrive
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages, isLoading]);
 
   // Initialize Speech Recognition
   useEffect(() => {
@@ -139,10 +147,10 @@ export function ChatInterface({ messages, input, setInput, onSendMessage, isLoad
                 <img 
                   src="/Untitled-design.png" 
                   alt="Logo" 
-                  className="h-7 w-7 sm:h-9 sm:w-9 mt-1 rounded-full object-cover shadow-sm transition-transform group-hover:scale-105 flex-shrink-0"
+                  className="h-7 w-7 sm:h-9 sm:w-9 mt-1 rounded-full object-cover shadow-sm transition-transform group-hover:scale-105 shrink-0"
                 />
               ) : (
-                <Avatar className="h-7 w-7 sm:h-9 sm:w-9 mt-1 border-2 shadow-sm transition-transform group-hover:scale-105 flex-shrink-0 border-slate-200">
+                <Avatar className="h-7 w-7 sm:h-9 sm:w-9 mt-1 border-2 shadow-sm transition-transform group-hover:scale-105 shrink-0 border-slate-200">
                   <AvatarFallback className="text-xs font-bold bg-slate-100 text-slate-600">
                     <User className="h-3 w-3 sm:h-4 sm:w-4" />
                   </AvatarFallback>
@@ -175,7 +183,7 @@ export function ChatInterface({ messages, input, setInput, onSendMessage, isLoad
               <img 
                 src="/Untitled-design.png" 
                 alt="Logo" 
-                className="h-7 w-7 sm:h-9 sm:w-9 mt-1 rounded-full object-cover shadow-sm flex-shrink-0"
+                className="h-7 w-7 sm:h-9 sm:w-9 mt-1 rounded-full object-cover shadow-sm shrink-0"
               />
               <div className="bg-white border border-slate-100 rounded-2xl rounded-tl-sm px-4 py-3 sm:px-6 sm:py-5 shadow-sm">
                 <div className="flex gap-1.5">
@@ -186,11 +194,14 @@ export function ChatInterface({ messages, input, setInput, onSendMessage, isLoad
               </div>
             </div>
           )}
+          
+          {/* Auto-scroll anchor */}
+          <div ref={messagesEndRef} />
         </div>
       </ScrollArea>
 
       {/* Input Area */}
-      <div className="p-2 sm:p-4 md:p-5 bg-white flex-shrink-0">
+      <div className="p-2 sm:p-4 md:p-5 bg-white shrink-0">
         <div className="max-w-4xl mx-auto">
           <div className="relative flex items-center gap-1.5 sm:gap-2">
             <Input
@@ -201,7 +212,7 @@ export function ChatInterface({ messages, input, setInput, onSendMessage, isLoad
               className="flex-1 pl-3 pr-3 py-2.5 sm:py-6 rounded-lg sm:rounded-2xl shadow-sm border-slate-300 focus-visible:ring-2 text-[16px] sm:text-base bg-white"
               style={{ '--tw-ring-color': 'rgba(255, 107, 74, 0.3)', borderColor: '#e5e7eb' } as React.CSSProperties}
             />
-            <div className="flex gap-1.5 sm:gap-2 flex-shrink-0">
+            <div className="flex gap-1.5 sm:gap-2 shrink-0">
               <Button
                 size="icon"
                 variant="ghost"
