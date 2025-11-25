@@ -45,25 +45,33 @@
 
 :root {
   --radius: 0.75rem;
-  --background: #f8fafc; /* Slate 50 - cleaner than pure white */
+  --background: #FAFAFA; /* Off-white - Chatbase style */
   --foreground: #0f172a; /* Slate 900 */
   --card: #ffffff;
   --card-foreground: #0f172a;
   --popover: #ffffff;
   --popover-foreground: #0f172a;
-  --primary: #0f4c92; /* The requested Blue */
+  --primary: #0f4c92; /* Blue accent - Polsek theme */
   --primary-foreground: #ffffff;
   --secondary: #f1f5f9; /* Slate 100 */
   --secondary-foreground: #0f172a;
   --muted: #f1f5f9;
-  --muted-foreground: #64748b; /* Slate 500 */
-  --accent: #e2e8f0; /* Slate 200 */
+  --muted-foreground: #9CA3AF; /* Muted gray */
+  --accent: #F3F4F6; /* Light gray for hover states */
   --accent-foreground: #0f172a;
   --destructive: #ef4444;
   --destructive-foreground: #ffffff;
-  --border: #e2e8f0;
-  --input: #e2e8f0;
+  --border: #E5E7EB; /* Border gray */
+  --input: #E5E7EB;
   --ring: #0f4c92;
+  
+  /* Blue theme color palette */
+  --accent-blue: #0f4c92;
+  --accent-blue-light: #EFF6FF;
+  --user-message: #FEF3E8;
+  --text-dark: #374151;
+  --text-muted: #9CA3AF;
+  --hover-gray: #F3F4F6;
   
   /* Charts - keeping generic for now but matching the theme */
   --chart-1: #0f4c92;
@@ -72,15 +80,15 @@
   --chart-4: #93c5fd;
   --chart-5: #bfdbfe;
 
-  /* Sidebar specific - using the requested color */
-  --sidebar: #0f4c92;
-  --sidebar-foreground: #ffffff;
-  --sidebar-primary: #1e293b; /* Darker shade for interactive elements in sidebar */
+  /* Sidebar specific - White/Light theme */
+  --sidebar: #FFFFFF;
+  --sidebar-foreground: #374151;
+  --sidebar-primary: #374151;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #165ba8; /* Slightly lighter/different for hover states */
-  --sidebar-accent-foreground: #ffffff;
-  --sidebar-border: #1e3a8a; /* Darker blue border */
-  --sidebar-ring: #3b82f6;
+  --sidebar-accent: #F3F4F6; /* Light gray for hover states */
+  --sidebar-accent-foreground: #374151;
+  --sidebar-border: #E5E7EB;
+  --sidebar-ring: #0f4c92;
 }
 
 .dark {

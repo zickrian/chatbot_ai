@@ -17,7 +17,7 @@ export function ChatSidebar({ onNewChat, onDownload, onObjectDetection, isOpen, 
       {/* Overlay untuk mobile */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-black/50 z-30 lg:hidden"
+          className="fixed inset-0 bg-black/30 z-30 lg:hidden"
           onClick={onClose}
         />
       )}
@@ -25,33 +25,36 @@ export function ChatSidebar({ onNewChat, onDownload, onObjectDetection, isOpen, 
       <aside
         className={`
           fixed lg:relative
-          w-64 sm:w-72 text-sidebar-foreground 
+          w-64 sm:w-72 
           flex flex-col h-screen
           z-40
-          border-r-0 shadow-none
-          transition-transform duration-300 ease-in-out
+          border-r transition-transform duration-300 ease-in-out
           ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
         `}
-        style={{ backgroundColor: '#334155' }}
+        style={{ 
+          backgroundColor: '#FFFFFF',
+          borderColor: '#E5E7EB'
+        }}
       >
 
-        <div className="p-4 sm:p-5 flex items-center gap-3 relative z-10 flex-shrink-0">
+        <div className="p-4 sm:p-5 flex items-center gap-3 relative z-10 flex-shrink-0 border-b" style={{ borderColor: '#E5E7EB' }}>
           <img
             src="/Untitled-design.png"
             alt="Polsek Rembang Logo"
             className="w-9 h-9 sm:w-10 sm:h-10 rounded-full object-cover"
           />
           <div className="flex-1 min-w-0">
-            <h1 className="font-bold text-base sm:text-lg leading-tight tracking-tight truncate">Polsek Rembang</h1>
+            <h1 className="font-semibold text-base sm:text-lg leading-tight tracking-tight truncate" style={{ color: '#374151' }}>Polsek Rembang</h1>
             <div className="flex items-center gap-1.5 mt-0.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
-              <p className="text-[9px] sm:text-[10px] font-medium text-sidebar-foreground/80 uppercase tracking-wider">Virtual Assistant</p>
+              <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+              <p className="text-[9px] sm:text-[10px] font-medium uppercase tracking-wider" style={{ color: '#9CA3AF' }}>Virtual Assistant</p>
             </div>
           </div>
           <Button
             variant="ghost"
             size="icon"
-            className="lg:hidden text-white hover:bg-white/10 h-8 w-8 flex-shrink-0"
+            className="lg:hidden h-8 w-8 flex-shrink-0 hover:bg-gray-100"
+            style={{ color: '#374151' }}
             onClick={onClose}
           >
             <X className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -61,15 +64,18 @@ export function ChatSidebar({ onNewChat, onDownload, onObjectDetection, isOpen, 
         <div className="p-3 sm:p-4 relative z-10 flex-shrink-0">
           <Button
             onClick={onNewChat}
-            className={`w-full justify-start gap-2 sm:gap-3 transition-all duration-300 font-semibold py-5 sm:py-6 text-sm sm:text-base rounded-xl border-0 ${
+            className={`w-full justify-start gap-2 sm:gap-3 transition-all duration-200 font-medium py-5 sm:py-6 text-sm sm:text-base rounded-xl border ${
               currentMode === 'chat' 
-                ? 'text-white shadow-lg hover:shadow-xl hover:opacity-90' 
-                : 'text-sidebar-foreground/70 hover:bg-white/10 hover:text-white'
+                ? 'shadow-sm' 
+                : 'hover:bg-gray-50'
             }`}
-            style={currentMode === 'chat' ? { background: 'linear-gradient(135deg, #ff6b4a 0%, #ff8c6b 100%)' } : { backgroundColor: 'transparent' }}
+            style={currentMode === 'chat' 
+              ? { backgroundColor: '#F3F4F6', color: '#374151', borderColor: '#E5E7EB' } 
+              : { backgroundColor: 'transparent', color: '#6B7280', borderColor: '#E5E7EB' }
+            }
           >
-            <div className={currentMode === 'chat' ? 'bg-white/20 p-1 rounded-md' : 'bg-white/10 p-1 rounded-md'}>
-              <Plus className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+            <div className="p-1 rounded-md" style={{ backgroundColor: currentMode === 'chat' ? '#0f4c92' : '#E5E7EB' }}>
+              <Plus className="w-3.5 h-3.5 sm:w-4 sm:h-4" style={{ color: currentMode === 'chat' ? '#FFFFFF' : '#6B7280' }} />
             </div>
             New Chat
           </Button>
@@ -80,24 +86,25 @@ export function ChatSidebar({ onNewChat, onDownload, onObjectDetection, isOpen, 
 
             {/* Actions Section */}
             <div className="space-y-2 sm:space-y-3">
-              <h3 className="text-[10px] sm:text-xs font-bold text-sidebar-foreground/40 uppercase tracking-widest px-2 sm:px-3 flex items-center gap-2">
+              <h3 className="text-[10px] sm:text-[11px] font-semibold uppercase tracking-widest px-2 sm:px-3 flex items-center gap-2" style={{ color: '#9CA3AF', letterSpacing: '0.05em' }}>
                 Actions
               </h3>
               <div className="space-y-1">
                 <Button
                   variant="ghost"
-                  className="w-full justify-start gap-2 sm:gap-3 text-sidebar-foreground/90 hover:bg-white/10 hover:text-white transition-colors h-9 sm:h-10 text-xs sm:text-sm rounded-lg"
+                  className="w-full justify-start gap-2 sm:gap-3 transition-colors h-9 sm:h-10 text-xs sm:text-sm rounded-lg hover:bg-gray-100"
+                  style={{ color: '#374151' }}
                   onClick={onDownload}
                 >
-                  <Download className="w-3.5 h-3.5 sm:w-4 sm:h-4 opacity-70" />
-                  <span className="truncate">Download Transcript</span>
+                  <Download className="w-3.5 h-3.5 sm:w-4 sm:h-4" style={{ color: '#6B7280' }} />
+                  <span className="truncate font-medium">Download Transcript</span>
                 </Button>
               </div>
             </div>
 
             {/* YOLO Section */}
             <div className="space-y-2 sm:space-y-3">
-              <h3 className="text-[10px] sm:text-xs font-bold text-sidebar-foreground/40 uppercase tracking-widest px-2 sm:px-3 flex items-center gap-2">
+              <h3 className="text-[10px] sm:text-[11px] font-semibold uppercase tracking-widest px-2 sm:px-3 flex items-center gap-2" style={{ color: '#9CA3AF', letterSpacing: '0.05em' }}>
                 Experiment
               </h3>
               <div className="space-y-1">
@@ -105,27 +112,30 @@ export function ChatSidebar({ onNewChat, onDownload, onObjectDetection, isOpen, 
                   variant="ghost"
                   className={`w-full justify-start gap-2 sm:gap-3 transition-all h-9 sm:h-10 text-xs sm:text-sm rounded-lg ${
                     currentMode === 'object-detection'
-                      ? 'text-white font-semibold shadow-md border-0'
-                      : 'text-sidebar-foreground/90 hover:bg-white/10 hover:text-white'
+                      ? 'font-semibold'
+                      : 'hover:bg-gray-100'
                   }`}
-                  style={currentMode === 'object-detection' ? { background: 'linear-gradient(135deg, #ff6b4a 0%, #ff8c6b 100%)' } : {}}
+                  style={currentMode === 'object-detection' 
+                    ? { backgroundColor: '#EFF6FF', color: '#0f4c92' } 
+                    : { color: '#374151' }
+                  }
                   onClick={onObjectDetection}
                 >
-                  <ScanEye className="w-3.5 h-3.5 sm:w-4 sm:h-4 opacity-70" />
-                  <span className="truncate">Object Detection</span>
+                  <ScanEye className="w-3.5 h-3.5 sm:w-4 sm:h-4" style={{ color: currentMode === 'object-detection' ? '#0f4c92' : '#6B7280' }} />
+                  <span className="truncate font-medium">Object Detection</span>
                 </Button>
               </div>
             </div>
 
             {/* History Section */}
             <div className="space-y-2 sm:space-y-3">
-              <h3 className="text-[10px] sm:text-xs font-bold text-sidebar-foreground/40 uppercase tracking-widest px-2 sm:px-3 flex items-center gap-2">
+              <h3 className="text-[10px] sm:text-[11px] font-semibold uppercase tracking-widest px-2 sm:px-3 flex items-center gap-2" style={{ color: '#9CA3AF', letterSpacing: '0.05em' }}>
                 History
               </h3>
               <div className="px-2 sm:px-3 py-6 sm:py-8 text-center">
-                <div className="bg-white/5 rounded-lg p-3 sm:p-4 border border-white/5">
-                  <History className="w-6 h-6 sm:w-8 sm:h-8 text-sidebar-foreground/20 mx-auto mb-2" />
-                  <p className="text-[10px] sm:text-xs text-sidebar-foreground/40">No chat history available</p>
+                <div className="rounded-lg p-3 sm:p-4 border" style={{ backgroundColor: '#F9FAFB', borderColor: '#E5E7EB' }}>
+                  <History className="w-6 h-6 sm:w-8 sm:h-8 mx-auto mb-2" style={{ color: '#D1D5DB' }} />
+                  <p className="text-[10px] sm:text-xs" style={{ color: '#9CA3AF' }}>No chat history available</p>
                 </div>
               </div>
             </div>
@@ -133,7 +143,7 @@ export function ChatSidebar({ onNewChat, onDownload, onObjectDetection, isOpen, 
           </div>
         </ScrollArea>
 
-        <div className="p-3 sm:p-4 text-[9px] sm:text-[10px] text-center text-sidebar-foreground/30 mt-auto flex-shrink-0">
+        <div className="p-3 sm:p-4 text-[9px] sm:text-[10px] text-center mt-auto flex-shrink-0 border-t" style={{ color: '#9CA3AF', borderColor: '#E5E7EB' }}>
           <p>&copy; 2025 Polsek Rembang. All rights reserved.</p>
         </div>
       </aside>

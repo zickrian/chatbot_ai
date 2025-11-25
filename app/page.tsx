@@ -13,18 +13,20 @@ export default function Home() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [mode, setMode] = useState<'chat' | 'object-detection'>('chat');
 
-  const handleSendMessage = async () => {
-    if (!input.trim()) return;
+  const handleSendMessage = async (image?: string, quickMessage?: string) => {
+    const messageContent = quickMessage || input;
+    if (!messageContent.trim() && !image) return;
 
     const userMessage: Message = {
       id: Date.now().toString(),
       role: 'user',
-      content: input,
-      timestamp: new Date()
+      content: messageContent || (image ? "Tolong analisis gambar ini" : ""),
+      timestamp: new Date(),
+      image: image
     };
 
     setMessages(prev => [...prev, userMessage]);
-    const currentInput = input;
+    const currentInput = messageContent;
     setInput('');
     setIsLoading(true);
 
@@ -42,7 +44,8 @@ export default function Home() {
         },
         body: JSON.stringify({
           message: currentInput,
-          history: history
+          history: history,
+          image: image
         }),
       });
 
@@ -310,7 +313,7 @@ export default function Home() {
   };
 
   return (
-    <div className="flex w-screen overflow-hidden" style={{ backgroundColor: '#334155', height: '100dvh' }}>
+    <div className="flex w-screen overflow-hidden" style={{ backgroundColor: '#FAFAFA', height: '100dvh' }}>
       <ChatSidebar
         onNewChat={handleNewChat}
         onDownload={handleDownloadTranscript}
@@ -324,8 +327,8 @@ export default function Home() {
       />
       
       
-      <div className="flex-1 flex items-center justify-center p-0 md:p-4">
-        <div className="w-full h-full md:rounded-2xl overflow-hidden md:shadow-2xl">
+      <div className="flex-1 flex items-center justify-center p-0">
+        <div className="w-full h-full overflow-hidden">
           {mode === 'chat' ? (
             <ChatInterface
               messages={messages}

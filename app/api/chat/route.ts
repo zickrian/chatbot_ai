@@ -320,11 +320,11 @@ Mulai dengan sapaan hangat jika ini pesan pertama. Contoh: "Halo Kak! Saya asist
 
 export async function POST(request: NextRequest) {
   try {
-    const { message, history } = await request.json();
+    const { message, history, image } = await request.json();
 
-    if (!message) {
+    if (!message && !image) {
       return NextResponse.json(
-        { error: "Message is required" },
+        { error: "Message or image is required" },
         { status: 400 }
       );
     }
@@ -357,12 +357,41 @@ export async function POST(request: NextRequest) {
     }
     
     // Add current message
-    fullPrompt += `Pengguna: ${message}\nAsisten:`;
+    const userMessage = message || "Tolong analisis gambar ini dan jelaskan apa yang kamu lihat.";
+    fullPrompt += `Pengguna: ${userMessage}\nAsisten:`;
 
-    const response = await ai.models.generateContent({
-      model: "gemini-2.0-flash",
-      contents: fullPrompt,
-    });
+    let response;
+
+    if (image) {
+      // Handle image with vision capability
+      // Extract base64 data from data URL
+      const base64Data = image.replace(/^data:image\/\w+;base64,/, '');
+      const mimeType = image.match(/^data:(image\/\w+);base64,/)?.[1] || 'image/jpeg';
+
+      response = await ai.models.generateContent({
+        model: "gemini-2.0-flash",
+        contents: [
+          {
+            role: "user",
+            parts: [
+              { text: fullPrompt },
+              {
+                inlineData: {
+                  mimeType: mimeType,
+                  data: base64Data,
+                },
+              },
+            ],
+          },
+        ],
+      });
+    } else {
+      // Text only
+      response = await ai.models.generateContent({
+        model: "gemini-2.0-flash",
+        contents: fullPrompt,
+      });
+    }
 
     const text = response.text;
 
