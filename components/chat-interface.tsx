@@ -211,7 +211,7 @@ export function ChatInterface({ messages, input, setInput, onSendMessage, isLoad
               
               <h3 className="text-xl sm:text-2xl font-semibold mb-2 sm:mb-3" style={{ color: '#374151' }}>Selamat Datang</h3>
               <p className="max-w-md mx-auto text-sm sm:text-base leading-relaxed" style={{ color: '#6B7280' }}>
-                Saya adalah asisten virtual Polsek Rembang. Silakan sampaikan pertanyaan Anda terkait layanan kepolisian.
+                Saya adalah Layanan Informasi Polsek Rembang. Silakan sampaikan pertanyaan Anda terkait layanan kepolisian.
               </p>
             </div>
           )}
