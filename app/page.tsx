@@ -24,21 +24,54 @@ export default function Home() {
     };
 
     setMessages(prev => [...prev, userMessage]);
+    const currentInput = input;
     setInput('');
     setIsLoading(true);
 
-    // Auto-reply: Coming Soon
-    setTimeout(() => {
+    try {
+      // Prepare history for context (exclude the current message)
+      const history = messages.map(msg => ({
+        role: msg.role,
+        content: msg.content
+      }));
+
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message: currentInput,
+          history: history
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Terjadi kesalahan');
+      }
+
       const aiMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: "🚧 Maaf, fitur chatbot masih dalam tahap pengembangan (Coming Soon).\n\n✅ Fitur yang tersedia saat ini:\n• Object Detection - Klik menu di sidebar untuk mengakses kamera dan deteksi objek real-time.\n\nTerima kasih atas pengertiannya! 🙏",
+        content: data.response,
         timestamp: new Date()
       };
 
       setMessages(prev => [...prev, aiMessage]);
+    } catch (error) {
+      console.error('Error sending message:', error);
+      const errorMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        role: 'assistant',
+        content: "Maaf, terjadi kesalahan dalam memproses pesan Anda. Silakan coba lagi nanti. 🙏",
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, errorMessage]);
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
   };
 
   const handleNewChat = () => {
