@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Plus, Download, History, ScanEye, X } from "lucide-react";
+import { Plus, Download, ScanEye, X } from "lucide-react";
 
 interface ChatSidebarProps {
   onNewChat: () => void;
@@ -127,18 +127,7 @@ export function ChatSidebar({ onNewChat, onDownload, onObjectDetection, isOpen, 
               </div>
             </div>
 
-            {/* History Section */}
-            <div className="space-y-2 sm:space-y-3">
-              <h3 className="text-[10px] sm:text-[11px] font-semibold uppercase tracking-widest px-2 sm:px-3 flex items-center gap-2" style={{ color: '#9CA3AF', letterSpacing: '0.05em' }}>
-                History
-              </h3>
-              <div className="px-2 sm:px-3 py-6 sm:py-8 text-center">
-                <div className="rounded-lg p-3 sm:p-4 border" style={{ backgroundColor: '#F9FAFB', borderColor: '#E5E7EB' }}>
-                  <History className="w-6 h-6 sm:w-8 sm:h-8 mx-auto mb-2" style={{ color: '#D1D5DB' }} />
-                  <p className="text-[10px] sm:text-xs" style={{ color: '#9CA3AF' }}>No chat history available</p>
-                </div>
-              </div>
-            </div>
+
 
           </div>
         </ScrollArea>
