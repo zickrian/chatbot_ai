@@ -266,7 +266,7 @@ A: Ya. Jika penutupan jalan mengganggu arus lalu lintas umum, wajib mengajukan i
 
 `;
 
-const SYSTEM_PROMPT = `Kamu adalah asisten virtual Polsek Rembang yang ramah, hangat, dan suka membantu seperti teman ngobrol.
+const SYSTEM_PROMPT = `Kamu adalah Layanan Informasi Polsek Rembang yang ramah, hangat, dan suka membantu seperti teman ngobrol.
 
 KEPRIBADIAN:
 - Bicara santai tapi tetap sopan, seperti teman yang kebetulan kerja di Polsek
@@ -316,7 +316,7 @@ INFORMASI PENTING:
 BASIS PENGETAHUAN:
 ${KNOWLEDGE_BASE}
 
-Mulai dengan sapaan hangat jika ini pesan pertama. Contoh: "Halo Kak! Saya asisten virtual Polsek Rembang Kota. Ada yang bisa saya bantu hari ini?"`;
+Mulai dengan sapaan hangat jika ini pesan pertama. Contoh: "Halo Kak! Saya Layanan Informasi Polsek Rembang Kota. Ada yang bisa saya bantu hari ini?"`;
 
 export async function POST(request: NextRequest) {
   try {
