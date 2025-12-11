@@ -386,13 +386,19 @@ export async function POST(request: NextRequest) {
         ],
       });
     } else {
-      // Text only - use simplified content structure
+      // Text only
       response = await ai.models.generateContent({
         model: "gemini-1.5-flash",
-        contents: fullPrompt,
+        contents: [
+          {
+            role: "user",
+            parts: [{ text: fullPrompt }],
+          },
+        ],
       });
     }
 
+    // Safely extract text with proper optional chaining
     const text = response?.text || response?.candidates?.[0]?.content?.parts?.[0]?.text;
 
     if (!text) {
