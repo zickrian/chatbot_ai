@@ -398,8 +398,14 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Safely extract text with proper optional chaining
-    const text = response?.text || response?.candidates?.[0]?.content?.parts?.[0]?.text;
+    // Safely extract text with proper optional chaining and logging
+    let text = response?.text;
+    
+    // Fallback to candidates structure if direct text access fails
+    if (!text && response?.candidates?.[0]?.content?.parts?.[0]?.text) {
+      text = response.candidates[0].content.parts[0].text;
+      console.warn("API response format changed: using fallback extraction from candidates structure");
+    }
 
     if (!text) {
       return NextResponse.json(
@@ -412,20 +418,28 @@ export async function POST(request: NextRequest) {
   } catch (error: any) {
     console.error("Error calling Gemini API:", error);
     
-    // Provide more specific error messages
+    // Provide more specific error messages based on error patterns
     let errorMessage = "Terjadi kesalahan saat memproses permintaan Anda.";
     
-    if (error.message) {
+    // Check for status code if available (more reliable than string matching)
+    if (error.status === 401 || error.status === 403) {
+      errorMessage = "API key tidak valid. Silakan periksa konfigurasi API key.";
+    } else if (error.status === 429) {
+      errorMessage = "Batas penggunaan API tercapai. Silakan coba lagi nanti.";
+    } else if (error.status === 404) {
+      errorMessage = "Model AI tidak tersedia. Silakan hubungi administrator.";
+    } else if (error.message) {
       console.error("Error details:", error.message);
       
-      // Check for common error types
-      if (error.message.includes("API key")) {
+      // Fallback to message-based detection with specific patterns
+      const msg = error.message.toLowerCase();
+      if (msg.includes("api") && msg.includes("key")) {
         errorMessage = "API key tidak valid. Silakan periksa konfigurasi API key.";
-      } else if (error.message.includes("fetch failed") || error.message.includes("network")) {
+      } else if (msg.includes("fetch failed") || msg.includes("network") || msg.includes("connection")) {
         errorMessage = "Tidak dapat terhubung ke layanan AI. Silakan periksa koneksi internet.";
-      } else if (error.message.includes("quota") || error.message.includes("rate limit")) {
+      } else if (msg.includes("quota") || msg.includes("rate") && msg.includes("limit")) {
         errorMessage = "Batas penggunaan API tercapai. Silakan coba lagi nanti.";
-      } else if (error.message.includes("model")) {
+      } else if (msg.includes("model not found") || msg.includes("invalid model")) {
         errorMessage = "Model AI tidak tersedia. Silakan hubungi administrator.";
       }
     }
