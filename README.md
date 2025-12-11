@@ -27,12 +27,21 @@ Aplikasi chatbot cerdas untuk kepolisian sektor dengan fitur deteksi objek berba
 ## Prasyarat
 - Node.js v18+
 - npm v9+
+- API Key Google Gemini (dapatkan dari [Google AI Studio](https://aistudio.google.com/apikey))
 
 ## Instalasi
 1. Clone repositori
 2. Install dependencies:
 ```bash
 npm install
+```
+3. Buat file `.env.local` dan tambahkan API key:
+```bash
+cp .env.example .env.local
+```
+4. Edit file `.env.local` dan isi dengan API key Anda:
+```
+GOOGLE_GENAI_API_KEY=your_actual_api_key_here
 ```
 
 ## Menjalankan Aplikasi

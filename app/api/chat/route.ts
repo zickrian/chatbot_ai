@@ -386,19 +386,14 @@ export async function POST(request: NextRequest) {
         ],
       });
     } else {
-      // Text only
+      // Text only - use simplified content structure
       response = await ai.models.generateContent({
         model: "gemini-1.5-flash",
-        contents: [
-          {
-            role: "user",
-            parts: [{ text: fullPrompt }],
-          },
-        ],
+        contents: fullPrompt,
       });
     }
 
-    const text = response.text;
+    const text = response?.text || response?.candidates?.[0]?.content?.parts?.[0]?.text;
 
     if (!text) {
       return NextResponse.json(
@@ -410,12 +405,27 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ response: text });
   } catch (error: any) {
     console.error("Error calling Gemini API:", error);
-    // Extract detailed error message if available
-    const errorMessage = error.message || error.toString();
-    const errorDetails = error.response ? JSON.stringify(error.response) : '';
+    
+    // Provide more specific error messages
+    let errorMessage = "Terjadi kesalahan saat memproses permintaan Anda.";
+    
+    if (error.message) {
+      console.error("Error details:", error.message);
+      
+      // Check for common error types
+      if (error.message.includes("API key")) {
+        errorMessage = "API key tidak valid. Silakan periksa konfigurasi API key.";
+      } else if (error.message.includes("fetch failed") || error.message.includes("network")) {
+        errorMessage = "Tidak dapat terhubung ke layanan AI. Silakan periksa koneksi internet.";
+      } else if (error.message.includes("quota") || error.message.includes("rate limit")) {
+        errorMessage = "Batas penggunaan API tercapai. Silakan coba lagi nanti.";
+      } else if (error.message.includes("model")) {
+        errorMessage = "Model AI tidak tersedia. Silakan hubungi administrator.";
+      }
+    }
 
     return NextResponse.json(
-      { error: `Maaf, terjadi kesalahan pada sistem AI: ${errorMessage}. ${errorDetails}` },
+      { error: `Maaf, ${errorMessage} 🙏` },
       { status: 500 }
     );
   }
