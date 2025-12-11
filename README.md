@@ -50,6 +50,25 @@ npm run dev
 ```
 Buka http://localhost:3000 di browser
 
+## Testing Aplikasi
+Untuk menguji aplikasi chatbot:
+
+1. **Pastikan API Key sudah dikonfigurasi** di file `.env.local`
+2. **Jalankan development server**: `npm run dev`
+3. **Buka browser** di http://localhost:3000
+4. **Test fitur chat**:
+   - Ketik pesan sederhana seperti "Halo"
+   - Chatbot seharusnya merespons dengan sapaan
+5. **Test dengan pertanyaan spesifik**:
+   - "Bagaimana cara membuat SKCK?"
+   - "Apa syarat membuat SIM?"
+   - "Jam buka Polsek?"
+
+**Troubleshooting:**
+- Jika muncul error "API key tidak valid" → Periksa file `.env.local` dan pastikan API key benar
+- Jika muncul error "Tidak dapat terhubung" → Periksa koneksi internet
+- Jika build gagal → Hapus folder `.next` dan `node_modules`, lalu jalankan `npm install` ulang
+
 ## Model AI
 Aplikasi menggunakan:
 - YOLOv8n (yolov8n.pt) untuk deteksi objek
